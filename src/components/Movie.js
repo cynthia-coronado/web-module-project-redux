@@ -1,13 +1,25 @@
 import React from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { connect } from 'react-redux'
+import { deleteMovie } from '../actions/movieActions'
+import { addFavorite } from '../actions/favoritesActions'
 
 const Movie = (props) => {
     const { id } = useParams();
     const { push } = useHistory();
 
-    const movies= props.moves;
-    const movie = movies.find(movie=>movie.id===Number(id));
+    const { movies, displayFavorites, deleteMovie, addFavorite } = props;
+    const movie = props.movies.find(movie=>movie.id===Number(id));
+    
+
+    const handleDeleteMovie = () => {
+        deleteMovie(movie.id)
+        push('/movies')
+    }
+    
+    const handleAddFavorite = () => {
+        addFavorite(movie)
+    }
     
     return(<div className="modal-page col">
         <div className="modal-dialog">
@@ -38,8 +50,8 @@ const Movie = (props) => {
                         </section>
                         
                         <section>
-                            <span className="m-2 btn btn-dark">Favorite</span>
-                            <span className="delete"><input type="button" className="m-2 btn btn-danger" value="Delete"/></span>
+                            {displayFavorites && <span className="m-2 btn btn-dark" onClick={handleAddFavorite}>Favorite</span>}
+                            <span onClick = {() => handleDeleteMovie(id)} className="delete"><input type="button" className="m-2 btn btn-danger" value="Delete"/></span>
                         </section>
                     </div>
                 </div>
@@ -48,10 +60,12 @@ const Movie = (props) => {
     </div>);
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
+
     return ({
-        movies: state.movies.movies
+        movies: state.movies.movies,
+        displayFavorites: state.favorites.displayFavorites
     })
 }
 
-export default connect(mapStateToProps)(Movie);
+export default connect(mapStateToProps, { deleteMovie, addFavorite })(Movie);
